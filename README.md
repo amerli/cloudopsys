@@ -1,6 +1,8 @@
 <h2>Cloudopsys beadandó feladat</h2>
 
-Az alkalmazás az alább felsorolt futtatható modulokból áll. A lényeg, hogy a **cloudopsys-core** feltétlenül kell fusson ahhoz, hogy a többi modul működjön.
+Az alkalmazás az alább felsorolt spring-boot modulokból áll. A lényeg, hogy a **cloudopsys-core** szolgáltatás függősége a többi modulnak, így feltétlenül kell fusson ahhoz, hogy a többi modul működjön.
+
+Próbáltam mindent feltölteni a github repóba, de ha nem működik, akkor .zipként is megtalálhatóak a dolgok a gyökér könyvtárban.
 
 <h4>cloudopsys-core</h4>
 
@@ -19,9 +21,11 @@ Szintén egy konzolos alkalmazás, ami promp-utasításokat fogad, amiket a remo
 Röptében hoztam létre leginkább azzal a céllal, hogy lássam az aktuális állapotot és, hogy a műveletek sikeresek voltak-e.
 
 <h3>Szükséges konfigurálás</h3>
-* cloudopsys-cli-aiprompt az openai keyt egy OPENAI_API_KEY rendszerváltozóban várja
-* cloudopsys-core esetén egy in-memory SQLite adatbázis van beállítva, ezt lehet esetleg konkrét
+
+* Egy OpenAi Api keyt az OPENAI_API_KEY rendszerváltozóban biztosítani szükséges az cloudopsys-cli-aiprompt számára 
+* cloudopsys-core esetén egy in-memory SQLite adatbázis van beállítva, ezt lehet esetleg konkrét filera változtatni
 
 <h3>AI használat</h3>
+
 Én elég sokat használom az AI Agenteket, de jellemzően a minőségi, drágább modelleket fizetem meg saját zsebből.
 Ez most a korszellem és kísérletezés része is, de tudok alkalmazkodni az előírtakhoz (visszavenni kicsit a vibe-kódolásból vagy esetleg még többet használni az agenteket).
