@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>CloudOpsys – Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #333; }
+        nav { background: #2c3e50; padding: 12px 24px; display: flex; gap: 20px; align-items: center; }
+        nav a { color: #ecf0f1; text-decoration: none; font-weight: bold; }
+        nav a:hover { color: #3498db; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        h1, h2 { color: #2c3e50; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; }
+        th { background: #f0f3f6; font-weight: bold; }
+        .btn { display: inline-block; padding: 7px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; text-decoration: none; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-danger  { background: #e74c3c; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        input[type=text], select { padding: 7px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .msg-ok  { background: #d4edda; color: #155724; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px; }
+        .msg-err { background: #f8d7da; color: #721c24; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-icon    { background: #3498db; color: white; }
+        .badge-bg      { background: #9b59b6; color: white; }
+        .badge-public  { background: #27ae60; color: white; }
+        .badge-private { background: #e67e22; color: white; }
+        .badge-active  { background: #2c3e50; color: white; }
+        .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .actions { display: flex; gap: 6px; }
+        .active-info { background: #eaf4fb; border-left: 4px solid #3498db; padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; font-size: 14px; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/users">&#128100; Users</a>
+    <span style="color:#ecf0f1;">/ Profile: <span th:text="${user.name}"></span></span>
+</nav>
+<div class="container">
+    <div th:if="${message}" class="msg-ok" th:text="${message}"></div>
+    <div th:if="${error}"   class="msg-err" th:text="${error}"></div>
+    <h1>&#128100; Profile: <span th:text="${user.name}"></span></h1>
+
+    <!-- Name -->
+    <div class="card">
+        <h2>Name</h2>
+        <form th:action="@{/users/{id}/profile/name(id=${user.id})}" method="post" class="row">
+            <input type="text" name="name" th:value="${user.name}" required/>
+            <button type="submit" class="btn btn-primary">Update Name</button>
+        </form>
+    </div>
+
+    <!-- Theme -->
+    <div class="card">
+        <h2>Theme</h2>
+        <form th:action="@{/users/{id}/profile/theme(id=${user.id})}" method="post" class="row">
+            <select name="theme">
+                <option th:each="t : ${themes}"
+                        th:value="${t}"
+                        th:text="${t}"
+                        th:selected="${t == user.theme}"></option>
+            </select>
+            <button type="submit" class="btn btn-primary">Set Theme</button>
+        </form>
+    </div>
+
+    <!-- Icons -->
+    <div class="card">
+        <h2>&#128444; Icon</h2>
+        <div class="active-info">
+            <strong>Active icon:</strong>
+            <span th:if="${user.activeIconId != null}" th:text="${user.activeIconId}"></span>
+            <span th:if="${user.activeIconId == null}" style="color:#999;">None selected</span>
+        </div>
+        <h3 style="font-size:15px; margin-bottom:8px;">Choose active icon</h3>
+        <form th:action="@{/users/{id}/profile/icon/activate(id=${user.id})}" method="post" class="row" style="margin-bottom:16px;">
+            <select name="assetId">
+                <option th:each="asset : ${availableIcons}"
+                        th:value="${asset.id}"
+                        th:text="${asset.fileName + ' [' + asset.visibility + ']'}"
+                        th:selected="${user.activeIconId != null and user.activeIconId == asset.id}"></option>
+            </select>
+            <button type="submit" class="btn btn-warning">Set Active</button>
+        </form>
+        <h3 style="font-size:15px; margin-bottom:8px;">My icons</h3>
+        <table th:if="${!#lists.isEmpty(assets)}">
+            <thead><tr><th>ID</th><th>File</th><th>Visibility</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="asset : ${assets}" th:if="${asset.type.name() == 'ICON'}">
+                    <td th:text="${asset.id}"></td>
+                    <td th:text="${asset.fileName}"></td>
+                    <td>
+                        <span th:if="${asset.visibility.name() == 'PUBLIC'}"  class="badge badge-public">PUBLIC</span>
+                        <span th:if="${asset.visibility.name() == 'PRIVATE'}" class="badge badge-private">PRIVATE</span>
+                    </td>
+                    <td>
+                        <span th:if="${user.activeIconId != null and user.activeIconId == asset.id}" class="badge badge-active">&#10003; ACTIVE</span>
+                    </td>
+                    <td class="actions">
+                        <form th:if="${asset.visibility.name() == 'PRIVATE'}"
+                              th:action="@{/users/{id}/profile/asset/{aid}/make-public(id=${user.id},aid=${asset.id})}"
+                              method="post" style="margin:0;">
+                            <button type="submit" class="btn btn-success btn-sm">Make Public</button>
+                        </form>
+                        <form th:action="@{/users/{id}/profile/asset/{aid}/delete(id=${user.id},aid=${asset.id})}"
+                              method="post" style="margin:0;">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form th:action="@{/users/{id}/profile/icon(id=${user.id})}" method="post" class="row" style="margin-top:12px;">
+            <input type="text" name="fileName" placeholder="icon-filename.png" required/>
+            <button type="submit" class="btn btn-primary">Add Private Icon</button>
+        </form>
+    </div>
+
+    <!-- Backgrounds -->
+    <div class="card">
+        <h2>&#127758; Background</h2>
+        <div class="active-info">
+            <strong>Active background:</strong>
+            <span th:if="${user.activeBackgroundId != null}" th:text="${user.activeBackgroundId}"></span>
+            <span th:if="${user.activeBackgroundId == null}" style="color:#999;">None selected</span>
+        </div>
+        <h3 style="font-size:15px; margin-bottom:8px;">Choose active background</h3>
+        <form th:action="@{/users/{id}/profile/bg/activate(id=${user.id})}" method="post" class="row" style="margin-bottom:16px;">
+            <select name="assetId">
+                <option th:each="asset : ${availableBackgrounds}"
+                        th:value="${asset.id}"
+                        th:text="${asset.fileName + ' [' + asset.visibility + ']'}"
+                        th:selected="${user.activeBackgroundId != null and user.activeBackgroundId == asset.id}"></option>
+            </select>
+            <button type="submit" class="btn btn-warning">Set Active</button>
+        </form>
+        <h3 style="font-size:15px; margin-bottom:8px;">My backgrounds</h3>
+        <table th:if="${!#lists.isEmpty(assets)}">
+            <thead><tr><th>ID</th><th>File</th><th>Visibility</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="asset : ${assets}" th:if="${asset.type.name() == 'BACKGROUND'}">
+                    <td th:text="${asset.id}"></td>
+                    <td th:text="${asset.fileName}"></td>
+                    <td>
+                        <span th:if="${asset.visibility.name() == 'PUBLIC'}"  class="badge badge-public">PUBLIC</span>
+                        <span th:if="${asset.visibility.name() == 'PRIVATE'}" class="badge badge-private">PRIVATE</span>
+                    </td>
+                    <td>
+                        <span th:if="${user.activeBackgroundId != null and user.activeBackgroundId == asset.id}" class="badge badge-active">&#10003; ACTIVE</span>
+                    </td>
+                    <td class="actions">
+                        <form th:if="${asset.visibility.name() == 'PRIVATE'}"
+                              th:action="@{/users/{id}/profile/asset/{aid}/make-public(id=${user.id},aid=${asset.id})}"
+                              method="post" style="margin:0;">
+                            <button type="submit" class="btn btn-success btn-sm">Make Public</button>
+                        </form>
+                        <form th:action="@{/users/{id}/profile/asset/{aid}/delete(id=${user.id},aid=${asset.id})}"
+                              method="post" style="margin:0;">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form th:action="@{/users/{id}/profile/bg(id=${user.id})}" method="post" class="row" style="margin-top:12px;">
+            <input type="text" name="fileName" placeholder="background-filename.png" required/>
+            <button type="submit" class="btn btn-primary">Add Private Background</button>
+        </form>
+    </div>
+
+    <a href="/users" class="btn btn-secondary">&#8592; Back to Users</a>
+</div>
+</body>
+</html>

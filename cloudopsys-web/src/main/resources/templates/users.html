@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>CloudOpsys – Users</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #333; }
+        nav { background: #2c3e50; padding: 12px 24px; display: flex; gap: 20px; align-items: center; }
+        nav a { color: #ecf0f1; text-decoration: none; font-weight: bold; }
+        nav a:hover { color: #3498db; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        h1, h2 { color: #2c3e50; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; }
+        th { background: #f0f3f6; font-weight: bold; }
+        .btn { display: inline-block; padding: 7px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; text-decoration: none; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-danger  { background: #e74c3c; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        input[type=text], select { padding: 7px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .msg-ok  { background: #d4edda; color: #155724; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px; }
+        .msg-err { background: #f8d7da; color: #721c24; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-dark { background: #2c3e50; color: white; }
+        .badge-bright { background: #f1c40f; color: #333; }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/users">&#128100; Users</a>
+</nav>
+<div class="container">
+    <div th:if="${message}" class="msg-ok" th:text="${message}"></div>
+    <div th:if="${error}" class="msg-err" th:text="${error}"></div>
+
+    <h1>&#128100; Users</h1>
+
+    <div class="card">
+        <h2>Add New User</h2>
+        <form action="/users/add" method="post" style="display:flex;gap:10px;align-items:center;">
+            <input type="text" name="name" placeholder="Full name" required/>
+            <input type="text" name="username" placeholder="Username (unique)" required/>
+            <button type="submit" class="btn btn-primary">Add User</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>All Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Theme</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td>
+                        <span th:if="${user.theme != null}"
+                              th:classappend="${user.theme.name() == 'DARK'} ? 'badge badge-dark' : 'badge badge-bright'"
+                              th:text="${user.theme}"></span>
+                        <span th:if="${user.theme == null}" style="color:#aaa;">—</span>
+                    </td>
+                    <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <a th:href="@{/users/{id}/profile(id=${user.id})}" class="btn btn-primary btn-sm">Profile</a>
+                        <a th:href="@{/users/{id}/apps(id=${user.id})}" class="btn btn-success btn-sm">Apps</a>
+                        <form th:action="@{/users/{id}/delete(id=${user.id})}" method="post" style="margin:0;">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Delete this user?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="4" style="color:#aaa;text-align:center;">No users yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
